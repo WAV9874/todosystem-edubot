@@ -216,3 +216,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Variables de entorno
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Base vectorial generada localmente
+vectorstore/*
+!vectorstore/.gitkeep
+
+# Logs generados localmente
+logs/*
+!logs/.gitkeep
