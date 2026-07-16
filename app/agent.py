@@ -1,26 +1,33 @@
+from pathlib import Path
+
+import pandas as pd
+
 from app.rag_pipeline import TodoSystemRAG
 from app.prompts import PROMPT_PRINCIPAL
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+CONTACT_FILE = BASE_DIR / "data" / "csv" / "contacto_todosystem.csv"
+COURSES_FILE = BASE_DIR / "data" / "csv" / "cursos_todosystem.csv"
 
 
 class TodoSystemAgent:
     """
     Agente académico para el Instituto TodoSystem.
 
-    Este agente usa el pipeline RAG para buscar información en documentos PDF y CSV,
-    selecciona los fragmentos más relevantes y construye una respuesta clara para el usuario.
+    Usa RAG para consultar documentos PDF y CSV, pero responde directamente
+    desde CSV cuando la pregunta es sobre contacto, ubicación o listado de cursos.
     """
 
     def __init__(self):
         self.rag = TodoSystemRAG()
 
     def _format_sources(self, results: list[dict]) -> list[str]:
-        """Extrae fuentes únicas desde los metadatos de los documentos recuperados."""
         sources = []
 
         for item in results:
             metadata = item.get("metadata", {})
             source = metadata.get("source", "Fuente no identificada")
-
             detail = source
 
             if metadata.get("type") == "pdf":
@@ -35,17 +42,9 @@ class TodoSystemAgent:
         return sources
 
     def _parse_csv_text(self, text: str) -> dict:
-        """
-        Convierte un texto generado desde CSV en un diccionario.
-
-        Ejemplo:
-        id: 2 | dato: Ubicación general | descripcion: Bugalagrande...
-        """
         data = {}
 
-        parts = text.split("|")
-
-        for part in parts:
+        for part in text.split("|"):
             if ":" in part:
                 key, value = part.split(":", 1)
                 data[key.strip().lower()] = value.strip()
@@ -53,67 +52,37 @@ class TodoSystemAgent:
         return data
 
     def _clean_text(self, text: str) -> str:
-        """
-        Limpia texto para evitar caracteres raros o saltos innecesarios.
-        """
         text = text.replace("\x7f", "-")
         text = " ".join(text.split())
         return text.strip()
 
     def _build_answer_from_csv(self, data: dict) -> str:
-        """
-        Construye respuestas claras cuando la información viene desde archivos CSV.
-        """
-
-        # Caso FAQ: pregunta y respuesta
         if "pregunta" in data and "respuesta" in data:
             return data["respuesta"]
 
-        # Caso contacto: dato y descripción
         if "dato" in data and "descripcion" in data:
-            dato = data.get("dato", "Información")
-            descripcion = data.get("descripcion", "")
+            return f"{data.get('dato')}: {data.get('descripcion')}"
 
-            return f"{dato}: {descripcion}"
-
-        # Caso cursos
         if "nombre_curso" in data:
-            nombre = data.get("nombre_curso", "Curso")
-            descripcion = data.get("descripcion", "No disponible")
-            duracion = data.get("duracion", "No disponible")
-            modalidad = data.get("modalidad", "No disponible")
-            horario = data.get("horario", "No disponible")
-            requisitos = data.get("requisitos", "No disponible")
-            valor = data.get("valor", "Consultar con el área administrativa")
-            estado = data.get("estado", "No disponible")
-
             return (
-                f"El curso {nombre} tiene la siguiente información registrada:\n\n"
-                f"- Descripción: {descripcion}\n"
-                f"- Duración: {duracion}\n"
-                f"- Modalidad: {modalidad}\n"
-                f"- Horario: {horario}\n"
-                f"- Requisitos: {requisitos}\n"
-                f"- Valor: {valor}\n"
-                f"- Estado: {estado}"
+                f"El curso {data.get('nombre_curso')} tiene la siguiente información registrada:\n\n"
+                f"- Descripción: {data.get('descripcion', 'No disponible')}\n"
+                f"- Duración: {data.get('duracion', 'No disponible')}\n"
+                f"- Modalidad: {data.get('modalidad', 'No disponible')}\n"
+                f"- Horario: {data.get('horario', 'No disponible')}\n"
+                f"- Requisitos: {data.get('requisitos', 'No disponible')}\n"
+                f"- Valor: {data.get('valor', 'Consultar con el área administrativa')}\n"
+                f"- Estado: {data.get('estado', 'No disponible')}"
             )
 
-        # Respuesta general si el CSV no coincide con los casos anteriores
         readable_items = []
-
         for key, value in data.items():
             if key not in ["id", "fuente", "categoria"]:
                 readable_items.append(f"- {key.capitalize()}: {value}")
 
-        if readable_items:
-            return "\n".join(readable_items)
-
-        return ""
+        return "\n".join(readable_items)
 
     def _build_answer_from_pdf(self, text: str) -> str:
-        """
-        Construye una respuesta sencilla cuando la información viene desde PDF.
-        """
         clean_text = self._clean_text(text)
 
         if len(clean_text) > 800:
@@ -121,67 +90,134 @@ class TodoSystemAgent:
 
         return clean_text
 
+    def _finalize_answer(self, answer_text: str) -> str:
+        return (
+            f"{answer_text}\n\n"
+            "Nota: esta respuesta se genera con base en la información disponible en los documentos del proyecto. "
+            "Para confirmar datos sensibles como valores, cupos, fechas de inicio o dirección exacta, "
+            "se recomienda contactar directamente con el área administrativa."
+        )
+
     def _is_contact_question(self, question: str) -> bool:
-        """
-        Detecta si la pregunta está relacionada con contacto, dirección o ubicación.
-        """
-        contact_keywords = [
-            "dirección",
-            "direccion",
-            "ubicación",
-            "ubicacion",
-            "ubicados",
-            "ubicado",
-            "dónde",
-            "donde",
-            "queda",
-            "contacto",
-            "teléfono",
-            "telefono",
-            "whatsapp",
-            "correo",
+        keywords = [
+            "dirección", "direccion", "ubicación", "ubicacion", "ubicados", "ubicado",
+            "dónde", "donde", "queda", "contacto", "teléfono", "telefono",
+            "whatsapp", "correo", "horario", "atienden", "atención", "atencion"
+        ]
+        question = question.lower()
+        return any(keyword in question for keyword in keywords)
+
+    def _answer_contact_question(self, question: str) -> dict | None:
+        if not self._is_contact_question(question):
+            return None
+
+        if not CONTACT_FILE.exists():
+            return None
+
+        df = pd.read_csv(CONTACT_FILE)
+        question = question.lower()
+        selected_row = None
+
+        if any(word in question for word in ["dirección", "direccion"]):
+            selected = df[df["dato"].str.contains("Dirección", case=False, na=False)]
+            if not selected.empty:
+                selected_row = selected.iloc[0]
+
+        elif any(word in question for word in ["ubicación", "ubicacion", "ubicados", "ubicado", "dónde", "donde", "queda"]):
+            selected = df[df["dato"].str.contains("Ubicación|Dirección", case=False, na=False)]
+            if not selected.empty:
+                selected_row = selected.iloc[0]
+
+        elif any(word in question for word in ["horario", "atienden", "atención", "atencion"]):
+            selected = df[df["dato"].str.contains("Horario", case=False, na=False)]
+            if not selected.empty:
+                selected_row = selected.iloc[0]
+
+        elif any(word in question for word in ["correo", "email"]):
+            selected = df[df["dato"].str.contains("Correo", case=False, na=False)]
+            if not selected.empty:
+                selected_row = selected.iloc[0]
+
+        elif any(word in question for word in ["teléfono", "telefono", "whatsapp", "celular"]):
+            selected = df[df["dato"].str.contains("Teléfono|WhatsApp", case=False, na=False)]
+            if not selected.empty:
+                selected_row = selected.iloc[0]
+
+        if selected_row is None:
+            selected = df[df["dato"].str.contains("Recomendación|Área administrativa", case=False, na=False)]
+            if not selected.empty:
+                selected_row = selected.iloc[0]
+
+        if selected_row is None:
+            return None
+
+        answer_text = f"{selected_row['dato']}: {selected_row['descripcion']}"
+
+        return {
+            "answer": self._finalize_answer(answer_text),
+            "sources": [f"contacto_todosystem.csv - fila {int(selected_row.name) + 1}"],
+            "contexts": [answer_text],
+            "system_prompt": PROMPT_PRINCIPAL,
+        }
+
+    def _is_courses_list_question(self, question: str) -> bool:
+        question = question.lower()
+
+        patterns = [
+            "qué cursos ofrece",
+            "que cursos ofrece",
+            "cursos ofrece",
+            "cursos disponibles",
+            "oferta de cursos",
+            "lista de cursos",
+            "qué cursos tienen",
+            "que cursos tienen",
         ]
 
-        normalized_question = question.lower()
+        return any(pattern in question for pattern in patterns)
 
-        return any(keyword in normalized_question for keyword in contact_keywords)
+    def _answer_courses_list_question(self, question: str) -> dict | None:
+        if not self._is_courses_list_question(question):
+            return None
 
-    def _select_best_result(self, question: str, results: list[dict]) -> dict:
-        """
-        Selecciona el resultado más adecuado según la intención de la pregunta.
-        """
+        if not COURSES_FILE.exists():
+            return None
 
-        # Si la pregunta es sobre contacto, ubicación o dirección,
-        # damos prioridad al archivo contacto_todosystem.csv.
-        if self._is_contact_question(question):
-            contact_results = [
-                item
-                for item in results
-                if item.get("metadata", {}).get("source") == "contacto_todosystem.csv"
-            ]
+        df = pd.read_csv(COURSES_FILE)
 
-            if contact_results:
-                return contact_results[0]
+        lines = ["El Instituto TodoSystem tiene registrados los siguientes cursos:\n"]
 
-        # Si no es una pregunta de contacto, usamos el primer resultado del RAG.
-        return results[0]
+        for _, row in df.iterrows():
+            lines.append(
+                f"- {row['nombre_curso']}: duración {row['duracion']}, "
+                f"modalidad {row['modalidad']}, horario {row['horario']}, "
+                f"estado {row['estado']}."
+            )
+
+        answer_text = "\n".join(lines)
+
+        return {
+            "answer": self._finalize_answer(answer_text),
+            "sources": ["cursos_todosystem.csv"],
+            "contexts": [answer_text],
+            "system_prompt": PROMPT_PRINCIPAL,
+        }
 
     def answer(self, question: str) -> dict:
-        """
-        Responde una pregunta usando la base de conocimiento.
-
-        Retorna:
-        - respuesta
-        - fuentes
-        - fragmentos recuperados
-        """
-
         if not question or not question.strip():
             return {
                 "answer": "Por favor, escribe una pregunta para poder ayudarte.",
                 "sources": [],
                 "contexts": [],
             }
+
+        contact_answer = self._answer_contact_question(question)
+        if contact_answer:
+            return contact_answer
+
+        courses_answer = self._answer_courses_list_question(question)
+        if courses_answer:
+            return courses_answer
 
         results = self.rag.search(question, n_results=4)
 
@@ -195,8 +231,7 @@ class TodoSystemAgent:
                 "contexts": [],
             }
 
-        best_result = self._select_best_result(question, results)
-
+        best_result = results[0]
         best_text = best_result.get("text", "")
         best_metadata = best_result.get("metadata", {})
 
@@ -215,20 +250,10 @@ class TodoSystemAgent:
                 "Te recomiendo confirmar esta información directamente con el área administrativa del Instituto TodoSystem."
             )
 
-        final_answer = (
-            f"{answer_text}\n\n"
-            "Nota: esta respuesta se genera con base en la información disponible en los documentos del proyecto. "
-            "Para confirmar datos sensibles como valores, cupos, fechas de inicio o dirección exacta, "
-            "se recomienda contactar directamente al área administrativa."
-        )
-
-        sources = self._format_sources([best_result])
-        contexts = [self._clean_text(item["text"]) for item in results]
-
         return {
-            "answer": final_answer,
-            "sources": sources,
-            "contexts": contexts,
+            "answer": self._finalize_answer(answer_text),
+            "sources": self._format_sources([best_result]),
+            "contexts": [self._clean_text(item["text"]) for item in results],
             "system_prompt": PROMPT_PRINCIPAL,
         }
 
@@ -240,6 +265,7 @@ if __name__ == "__main__":
         "¿Qué documentos necesito para matricularme?",
         "¿En dónde están ubicados?",
         "¿Cuál es la dirección del instituto?",
+        "¿Cuál es el horario de atención?",
         "¿Qué cursos ofrece el Instituto TodoSystem?",
         "¿Cuánto cuesta el curso de mantenimiento de computadores?",
     ]
