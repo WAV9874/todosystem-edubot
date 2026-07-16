@@ -1,0 +1,9 @@
+id,dato,descripcion,categoria,fuente
+1,Nombre institucional,"Instituto TodoSystem",Contacto,contacto_todosystem.csv
+2,Ubicación general,"Bugalagrande, Valle del Cauca, Colombia. Dato de referencia utilizado para el proyecto académico.",Contacto,contacto_todosystem.csv
+3,Horario de atención,"Lunes a viernes de 8:00 a.m. a 12:00 p.m. y de 2:00 p.m. a 6:00 p.m. Sábados de 8:00 a.m. a 12:00 p.m.",Contacto,contacto_todosystem.csv
+4,Área administrativa,"Encargada de brindar información sobre matrículas, pagos, disponibilidad de cupos y requisitos.",Contacto,contacto_todosystem.csv
+5,Área académica,"Encargada de orientar sobre contenidos de cursos, asistencia, actividades, certificación y procesos formativos.",Contacto,contacto_todosystem.csv
+6,Correo institucional,"Correo no definido en esta versión del proyecto. Debe ser reemplazado por el dato oficial del instituto.",Contacto,contacto_todosystem.csv
+7,Teléfono o WhatsApp,"Número no definido en esta versión del proyecto. Debe ser reemplazado por el dato oficial del instituto.",Contacto,contacto_todosystem.csv
+8,Recomendación de contacto,"Para confirmar valores, cupos, fechas de inicio o requisitos especiales, se recomienda comunicarse directamente con el área administrativa.",Contacto,contacto_todosystem.csv
