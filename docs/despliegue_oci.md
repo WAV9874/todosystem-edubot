@@ -64,3 +64,109 @@ Estos comandos permiten instalar las herramientas necesarias para ejecutar el pr
 - Python 3 para ejecutar la aplicacion.
 - pip para instalar dependencias.
 - venv para crear un entorno virtual.
+
+---
+
+## 5. Clonar el repositorio del proyecto
+
+Despues de preparar la instancia, se debe clonar el repositorio publico del proyecto desde GitHub.
+
+Comando:
+
+```bash
+git clone https://github.com/WAV9874/todosystem-edubot.git
+```
+
+Luego se ingresa a la carpeta del proyecto:
+
+```bash
+cd todosystem-edubot
+```
+
+Con esto, el codigo fuente del agente queda disponible dentro de la instancia de OCI Compute.
+
+---
+
+## 6. Crear entorno virtual e instalar dependencias
+
+Dentro de la carpeta del proyecto se recomienda crear un entorno virtual de Python.
+
+Comandos:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Luego se instalan las dependencias del proyecto:
+
+```bash
+pip install -r requirements.txt
+```
+
+El archivo `requirements.txt` contiene las librerias necesarias para ejecutar TodoSystem EduBot, entre ellas Streamlit, Pandas, PyPDF, ChromaDB y Sentence Transformers.
+
+---
+
+## 7. Ejecutar la aplicacion con Streamlit
+
+Despues de instalar las dependencias, se puede ejecutar la aplicacion web con Streamlit.
+
+Comando:
+
+```bash
+python3 -m streamlit run app/main.py --server.port 8501 --server.address 0.0.0.0
+```
+
+El parametro `--server.port 8501` indica que la aplicacion se ejecutara en el puerto 8501.
+
+El parametro `--server.address 0.0.0.0` permite que la aplicacion pueda ser accedida desde fuera de la instancia, usando la direccion publica de la maquina virtual.
+
+---
+
+## 8. Acceder a la aplicacion desde el navegador
+
+Cuando la aplicacion este ejecutandose en OCI, se podra acceder desde un navegador usando la IP publica de la instancia y el puerto 8501.
+
+Formato de acceso:
+
+```text
+http://IP_PUBLICA_DE_LA_INSTANCIA:8501
+```
+
+Ejemplo:
+
+```text
+http://123.45.67.89:8501
+```
+
+La IP publica real sera tomada desde el panel de Oracle Cloud Infrastructure, en la informacion de la instancia Compute.
+
+Para que este acceso funcione, el puerto `8501` debe estar permitido en las reglas de red de OCI.
+
+---
+
+## 9. Configuracion de red en OCI
+
+Para que la aplicacion pueda abrirse desde internet, se debe permitir el trafico hacia el puerto `8501`.
+
+En OCI se debe revisar la configuracion de red asociada a la instancia Compute, por ejemplo:
+
+- Virtual Cloud Network.
+- Subnet.
+- Security List o Network Security Group.
+- Regla de entrada para el puerto `8501`.
+
+La regla de entrada debe permitir conexiones TCP hacia el puerto usado por Streamlit.
+
+Configuracion general esperada:
+
+```text
+Protocolo: TCP
+Puerto destino: 8501
+Origen: 0.0.0.0/0
+```
+
+Esta configuracion permite acceder a la aplicacion desde el navegador usando la IP publica de la instancia.
+
+Nota: en un entorno real de produccion se recomienda restringir el origen por seguridad, pero para este proyecto academico se permite el acceso publico con fines de demostracion.
