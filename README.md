@@ -1,4 +1,4 @@
-# TodoSystem EduBot
+﻿# TodoSystem EduBot
 
 TodoSystem EduBot es un agente inteligente academico desarrollado para apoyar la atencion institucional del Instituto TodoSystem.
 
@@ -186,4 +186,33 @@ La aplicacion se abrira en el navegador en una direccion similar a:
 
 ```text
 http://localhost:8501
+```
+
+---
+
+## Pruebas funcionales
+
+Se realizaron pruebas funcionales para validar que el agente responde correctamente preguntas sobre informacion institucional del Instituto TodoSystem.
+
+Algunas preguntas probadas fueron:
+
+- Que documentos necesito para matricularme?
+- En donde estan ubicados?
+- Cual es la direccion del instituto?
+- Cual es el horario de atencion?
+- Que cursos ofrece el Instituto TodoSystem?
+- Cuanto cuesta el curso de mantenimiento de computadores?
+
+Resultados principales:
+
+- El agente responde preguntas sobre matricula.
+- El agente responde preguntas sobre ubicacion y contacto.
+- El agente lista los cursos disponibles.
+- El agente no inventa precios cuando no tiene informacion exacta.
+- El agente muestra las fuentes consultadas.
+
+La documentacion completa de pruebas se encuentra en:
+
+```text
+docs/pruebas.md
 ```
