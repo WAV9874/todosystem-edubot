@@ -170,3 +170,38 @@ Origen: 0.0.0.0/0
 Esta configuracion permite acceder a la aplicacion desde el navegador usando la IP publica de la instancia.
 
 Nota: en un entorno real de produccion se recomienda restringir el origen por seguridad, pero para este proyecto academico se permite el acceso publico con fines de demostracion.
+
+---
+
+## 10. Evidencias del despliegue
+
+Para demostrar que el agente fue desplegado correctamente en Oracle Cloud Infrastructure, se deben registrar evidencias visuales del proceso.
+
+Evidencias recomendadas:
+
+- Captura de la instancia Compute creada en OCI.
+- Captura de la IP publica de la instancia.
+- Captura de la terminal conectada por SSH.
+- Captura del repositorio clonado dentro de la instancia.
+- Captura de la instalacion de dependencias.
+- Captura de la aplicacion ejecutandose con Streamlit.
+- Captura del navegador accediendo a la aplicacion desde la IP publica.
+- Captura del agente respondiendo una pregunta desde OCI.
+- Video corto mostrando la aplicacion funcionando en la nube.
+
+Las imagenes principales se guardaran en la carpeta:
+
+```text
+assets/
+```
+
+Nombres sugeridos para las evidencias:
+
+```text
+assets/oci_compute.png
+assets/oci_terminal.png
+assets/oci_streamlit_running.png
+assets/oci_app_funcionando.png
+```
+
+Estas evidencias seran usadas en el archivo `README.md` para demostrar el cumplimiento del requisito de despliegue en la nube.
