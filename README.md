@@ -216,3 +216,25 @@ La documentacion completa de pruebas se encuentra en:
 ```text
 docs/pruebas.md
 ```
+
+---
+
+## Evidencias visuales
+
+A continuacion se presentan algunas evidencias del funcionamiento local de TodoSystem EduBot.
+
+### Interfaz principal
+
+![Interfaz principal de TodoSystem EduBot](assets/assets_streamlit_inicio.png)
+
+### Consulta de cursos disponibles
+
+![Consulta de cursos disponibles](assets/assets_streamlit_cursos.png)
+
+### Consulta de precio sin inventar informacion
+
+![Consulta de precio sin inventar informacion](assets/assets_streamlit_precio_sin_inventar.png)
+
+### Registro de logs de ejecucion
+
+![Logs de ejecucion](assets/logs_ejecucion.png)
