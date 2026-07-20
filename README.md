@@ -21,7 +21,7 @@ Estado actual:
 - Pruebas funcionales documentadas.
 - Documentacion tecnica inicial creada.
 - Guia de despliegue en Oracle Cloud Infrastructure documentada.
-- Despliegue en OCI pendiente.
+- Despliegue en OCI realizado correctamente.
 
 ---
 
@@ -221,7 +221,7 @@ docs/pruebas.md
 
 ## Evidencias visuales
 
-A continuacion se presentan algunas evidencias del funcionamiento local de TodoSystem EduBot.
+A continuación se presentan algunas evidencias del funcionamiento local y en la nube de TodoSystem EduBot.
 
 ### Interfaz principal
 
@@ -231,16 +231,48 @@ A continuacion se presentan algunas evidencias del funcionamiento local de TodoS
 
 ![Consulta de cursos disponibles](assets/assets_streamlit_cursos.png)
 
-### Consulta de precio sin inventar informacion
+### Consulta de precio sin inventar información
 
-![Consulta de precio sin inventar informacion](assets/assets_streamlit_precio_sin_inventar.png)
+![Consulta de precio sin inventar información](assets/assets_streamlit_precio_sin_inventar.png)
 
-### Registro de logs de ejecucion
+### Registro de logs de ejecución
 
-![Logs de ejecucion](assets/logs_ejecucion.png)
+![Logs de ejecución](assets/logs_ejecucion.png)
 
 ### Despliegue en Oracle Cloud Infrastructure OCI
 
 La siguiente imagen evidencia el funcionamiento de TodoSystem EduBot desplegado en Oracle Cloud Infrastructure, ejecutándose mediante una instancia de cómputo y disponible desde una dirección IP pública en el puerto 8501.
 
-![TodoSystem EduBot funcionando en OCI](assets/oci_edubot_funcionando.png)S
+Enlace público temporal de la aplicación desplegada:
+
+http://157.137.212.200:8501
+
+Nota: este enlace depende de que la instancia de OCI permanezca encendida. Si la instancia se elimina o se apaga, la URL puede dejar de estar disponible o cambiar.
+
+![TodoSystem EduBot funcionando en OCI](assets/oci_edubot_funcionando.png)
+
+## Ejemplos de preguntas y respuestas del agente
+
+### Pregunta 1
+
+¿Qué cursos ofrece el Instituto TodoSystem?
+
+### Respuesta esperada
+
+El agente responde con los cursos registrados en la base de conocimiento, incluyendo Mantenimiento de Computadores, Ofimática Básica, Excel Básico e Intermedio, Diseño Gráfico Básico, Programación Básica y Redes de Computadores. También muestra información como duración, modalidad, horario y estado del curso.
+
+### Pregunta 2
+
+¿Cuánto cuesta el curso de mantenimiento de computadores?
+
+### Respuesta esperada
+
+El agente responde que el curso de Mantenimiento de Computadores tiene una duración de 3 meses, modalidad presencial, horario los sábados de 8:00 a.m. a 12:00 p.m., y que el valor debe ser consultado con el área administrativa. De esta forma evita inventar precios no registrados en la base de conocimiento.
+
+### Pregunta 3
+
+¿Qué documentos necesito para matricularme?
+
+### Respuesta esperada
+
+El agente responde con los documentos requeridos según la información disponible en la base de conocimiento, como documento de identidad, formulario de inscripción y demás requisitos definidos para el proceso de matrícula.
