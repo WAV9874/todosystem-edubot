@@ -238,3 +238,9 @@ A continuacion se presentan algunas evidencias del funcionamiento local de TodoS
 ### Registro de logs de ejecucion
 
 ![Logs de ejecucion](assets/logs_ejecucion.png)
+
+### Despliegue en Oracle Cloud Infrastructure OCI
+
+La siguiente imagen evidencia el funcionamiento de TodoSystem EduBot desplegado en Oracle Cloud Infrastructure, ejecutándose mediante una instancia de cómputo y disponible desde una dirección IP pública en el puerto 8501.
+
+![TodoSystem EduBot funcionando en OCI](assets/oci_edubot_funcionando.png)S
